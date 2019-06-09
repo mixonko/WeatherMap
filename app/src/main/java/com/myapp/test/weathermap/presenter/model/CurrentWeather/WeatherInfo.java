@@ -2,18 +2,18 @@ package com.myapp.test.weathermap.presenter.model.CurrentWeather;
 
 
 public class WeatherInfo {
-    private Weather [] weather;
-    private Main main;
-    private Wind wind;
+    private com.myapp.test.weathermap.presenter.model.CurrentWeather.Weather[] weather;
+    private com.myapp.test.weathermap.presenter.model.CurrentWeather.Main main;
+    private com.myapp.test.weathermap.presenter.model.CurrentWeather.Wind wind;
     private String cod;
 
-    public WeatherInfo(Weather[] weather, Main main, Wind wind, String cod) {
+    public WeatherInfo(com.myapp.test.weathermap.presenter.model.CurrentWeather.Weather[] weather, com.myapp.test.weathermap.presenter.model.CurrentWeather.Main main, com.myapp.test.weathermap.presenter.model.CurrentWeather.Wind wind, String cod) {
         this.weather = weather;
         this.main = main;
         this.wind = wind;
     }
 
-    public Weather[] getWeather() {
+    public com.myapp.test.weathermap.presenter.model.CurrentWeather.Weather[] getWeather() {
         return weather;
     }
 
@@ -21,7 +21,7 @@ public class WeatherInfo {
         this.weather = weather;
     }
 
-    public Main getMain() {
+    public com.myapp.test.weathermap.presenter.model.CurrentWeather.Main getMain() {
         return main;
     }
 
@@ -29,7 +29,7 @@ public class WeatherInfo {
         this.main = main;
     }
 
-    public Wind getWind() {
+    public com.myapp.test.weathermap.presenter.model.CurrentWeather.Wind getWind() {
         return wind;
     }
 

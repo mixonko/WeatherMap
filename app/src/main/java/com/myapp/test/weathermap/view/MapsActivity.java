@@ -1,6 +1,7 @@
 package com.myapp.test.weathermap.view;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -98,13 +99,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public boolean onMyLocationButtonClick() {
-
         return false;
     }
 
     @Override
     public void onMapClick(LatLng latLng) {
-
         mapWasClicked(latLng);
     }
 
@@ -134,7 +133,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         if (true) {
             marker.position(latLng);
-            mMap.addMarker(marker).showInfoWindow();
+            mMap.addMarker(marker);
             mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
             Geocoder gcd = new Geocoder(this, Locale.getDefault());
             List<Address> list = new ArrayList<>();
@@ -154,7 +153,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onInfoWindowClick(Marker marker) {
-
+        Intent intent = new Intent(this, ListWeatherActivity.class);
+        intent.putExtra(NAME, name.getText().toString());
+        String latitude = String.valueOf(latLng.latitude);
+        String longitude = String.valueOf(latLng.longitude);
+        intent.putExtra(LATITUDE, latitude);
+        intent.putExtra(LONGITUDE, longitude);
+        startActivity(intent);
     }
 
     @Override
@@ -163,6 +168,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         temperature.setText(getTemp);
         wind.setText(getWind);
         weather.setText(getWeather);
+        mMap.addMarker(marker).showInfoWindow();
+
     }
 
     @Override

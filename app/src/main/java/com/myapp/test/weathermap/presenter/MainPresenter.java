@@ -37,13 +37,7 @@ public class MainPresenter implements MainContract.MainPresenter {
         new AsyncTask() {
             @Override
             protected Object doInBackground(Object[] objects) {
-                try {
-                    result = mRepository.loadCurrentWeather(latitude, longitude);
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                result = mRepository.loadCurrentWeather(latitude, longitude);
                 return result;
             }
 
