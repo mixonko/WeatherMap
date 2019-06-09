@@ -134,7 +134,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         if (true) {
             marker.position(latLng);
-            mMap.addMarker(marker);
+            mMap.addMarker(marker).showInfoWindow();
             mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
             Geocoder gcd = new Geocoder(this, Locale.getDefault());
             List<Address> list = new ArrayList<>();
@@ -163,7 +163,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         temperature.setText(getTemp);
         wind.setText(getWind);
         weather.setText(getWeather);
-        mMap.addMarker(marker).showInfoWindow();
     }
 
     @Override

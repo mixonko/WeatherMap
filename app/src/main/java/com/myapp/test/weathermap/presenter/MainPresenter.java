@@ -79,7 +79,7 @@ public class MainPresenter implements MainContract.MainPresenter {
             weather = "Небо: " + getWeather(weatherInfo.getWeather());
             mView.showCurrentWeather(temp, wind, weather);
 
-        } else mView.showCurrentWeather("Ошибка", "Ошибка", "Ошибка");
+        } else mView.showCurrentWeather("Сервер", "не", "отвечает");
 
     }
 }
