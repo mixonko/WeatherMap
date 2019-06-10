@@ -14,26 +14,30 @@
         android:layout_height="match_parent"
         tools:context=".view.MapsActivity" />
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:layout_marginRight="15dp"
-        android:orientation="horizontal">
+        android:layout_margin="12dp">
 
         <EditText
             android:id="@+id/location_search"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:hint="Search Location Here"
-            android:maxLines="1" />
-
+            android:layout_width="250dp"
+            android:layout_height="38dp"
+            android:background="#afffffff"
+            android:ems="30"
+            android:hint="Введите адрес"
+            android:singleLine="true"
+            android:paddingLeft="10dp"
+            android:drawableRight="@drawable/ic_search_black_24dp"
+            android:imeOptions="actionSearch"
+            android:visibility="invisible"/>
 
         <Button
             android:id="@+id/locationSearchButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/ic_search_black_24dp"
             android:onClick="onMapSearch" />
 
-    </LinearLayout>
+    </FrameLayout>
 </FrameLayout>

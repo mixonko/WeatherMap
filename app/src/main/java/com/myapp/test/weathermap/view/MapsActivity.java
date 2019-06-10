@@ -8,7 +8,9 @@ import android.location.Geocoder;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -34,7 +36,7 @@ import java.util.Locale;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener,
         GoogleMap.OnMapClickListener, GoogleMap.InfoWindowAdapter, GoogleMap.OnInfoWindowClickListener, MainContract.View,
-        View.OnClickListener {
+        View.OnClickListener, TextView.OnEditorActionListener {
 
     private GoogleMap mMap;
     private MarkerOptions marker;
@@ -63,20 +65,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         wind = view.findViewById(R.id.wind);
         weather = view.findViewById(R.id.weather);
         locationSearch = findViewById(R.id.location_search);
-        locationSearchButton = findViewById(R.id.locationSearchButton);
+        locationSearch.setOnEditorActionListener(this);
 
+        locationSearchButton = findViewById(R.id.locationSearchButton);
         locationSearchButton.setOnClickListener(this);
 
-
         mPresenter = new MainPresenter(this);
-
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
-
-
+ 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -89,7 +89,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMapClickListener(this);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
             return;
         }
         mMap.setMyLocationEnabled(true);
@@ -104,34 +103,49 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onMapClick(LatLng latLng) {
-        mapWasClicked(latLng);
+        getMapInfo(latLng);
     }
-
 
     @Override
     public void onClick(View view) {
-        String location = locationSearch.getText().toString();
-        List<Address> addressList = null;
-
-        if (location != null || !location.equals("")) {
-            Geocoder geocoder = new Geocoder(MapsActivity.this);
-            try {
-                addressList = geocoder.getFromLocationName(location, 1);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            Address address = addressList.get(0);
-            LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
-            mapWasClicked(latLng);
-        }
+        locationSearchButton.setVisibility(View.INVISIBLE);
+        locationSearch.setVisibility(View.VISIBLE);
     }
 
-    private void mapWasClicked(LatLng latLng) {
+    @Override
+    public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+        locationSearchButton.setVisibility(View.VISIBLE);
+        locationSearch.setVisibility(View.INVISIBLE);
+        if (i == EditorInfo.IME_ACTION_SEARCH) {
+
+            String location = locationSearch.getText().toString();
+            List<Address> addressList = null;
+
+            if (!location.equals("")) {
+                Geocoder geocoder = new Geocoder(MapsActivity.this);
+                try {
+                    addressList = geocoder.getFromLocationName(location, 1);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Address address = addressList.get(0);
+                LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+                getMapInfo(latLng);
+                locationSearch.setText("");
+            }
+            return true;
+
+        }
+        return false;
+
+    }
+
+    private void getMapInfo(LatLng latLng) {
         mMap.clear();
         this.latLng = latLng;
 
-        if (true) {
+        if (isOnline()) {
             marker.position(latLng);
             mMap.addMarker(marker);
             mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
@@ -144,11 +158,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
             address = list.get(0);
             mPresenter.onMapWasClicked(String.valueOf(latLng.latitude), String.valueOf(latLng.longitude));
-
-
         } else {
             Toast.makeText(this, "Отсутствувет интернет соединение", Toast.LENGTH_LONG).show();
         }
+    }
+
+    @Override
+    public void showCurrentWeather(String getTemp, String getWind, String getWeather) {
+        name.setText(address.getAddressLine(0));
+        temperature.setText(getTemp);
+        wind.setText(getWind);
+        weather.setText(getWeather);
+        mMap.addMarker(marker).showInfoWindow();
     }
 
     @Override
@@ -163,16 +184,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void showCurrentWeather(String getTemp, String getWind, String getWeather) {
-        name.setText(address.getAddressLine(0));
-        temperature.setText(getTemp);
-        wind.setText(getWind);
-        weather.setText(getWeather);
-        mMap.addMarker(marker).showInfoWindow();
-
-    }
-
-    @Override
     public View getInfoWindow(Marker marker) {
         return null;
     }
@@ -183,18 +194,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     protected boolean isOnline() {
+        Runtime runtime = Runtime.getRuntime();
         try {
-            HttpURLConnection urlc = (HttpURLConnection) (new URL("http://www.anywebsiteyouthinkwillnotbedown.com").openConnection());
-            urlc.setRequestProperty("User-Agent", "Test");
-            urlc.setRequestProperty("Connection", "close");
-            urlc.setConnectTimeout(3000);
-            urlc.setReadTimeout(4000);
-            urlc.connect();
-            int networkcode2 = urlc.getResponseCode();
-            return (urlc.getResponseCode() == 200);
-        } catch (IOException e) {
-            return (false);
-        }
-    }
+            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
+            int     exitValue = ipProcess.waitFor();
+            return (exitValue == 0);
+        } catch (IOException e)          { e.printStackTrace(); }
+        catch (InterruptedException e) { e.printStackTrace(); }
 
+        return false;
+    }
 }
