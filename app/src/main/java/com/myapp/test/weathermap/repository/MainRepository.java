@@ -4,7 +4,6 @@ package com.myapp.test.weathermap.repository;
 import com.myapp.test.weathermap.MainContract;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;

@@ -12,7 +12,6 @@ import com.myapp.test.weathermap.view.ExampleAdapter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.ExecutionException;
 
 public class ListPresenter implements MainContract.ListPresenter {
     private MainContract.ListWeatherView mView;

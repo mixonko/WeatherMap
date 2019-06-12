@@ -3,9 +3,11 @@ package com.myapp.test.weathermap.presenter.model.CurrentWeather;
 
 public class Weather {
     private String description;
+    private String icon;
 
-    public Weather(String description) {
+    public Weather(String description, String icon) {
         this.description = description;
+        this.icon = icon;
     }
 
     public String getDescription() {
@@ -14,5 +16,13 @@ public class Weather {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
     }
 }

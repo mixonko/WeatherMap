@@ -24,12 +24,11 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.myapp.test.weathermap.MainContract;
+import com.myapp.test.weathermap.MyApplication;
 import com.myapp.test.weathermap.R;
 import com.myapp.test.weathermap.presenter.MainPresenter;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -75,8 +74,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+
     }
- 
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -88,11 +89,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnInfoWindowClickListener(this);
         mMap.setOnMapClickListener(this);
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
+        if (ActivityCompat.checkSelfPermission(MyApplication.getAppContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MyApplication.getAppContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    1);
         }
         mMap.setMyLocationEnabled(true);
-
 
     }
 
@@ -103,7 +104,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onMapClick(LatLng latLng) {
-        getMapInfo(latLng);
+            getMapInfo(latLng);
     }
 
     @Override
@@ -122,18 +123,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             List<Address> addressList = null;
 
             if (!location.equals("")) {
-                Geocoder geocoder = new Geocoder(MapsActivity.this);
                 try {
+                    Geocoder geocoder = new Geocoder(MapsActivity.this);
+
                     addressList = geocoder.getFromLocationName(location, 1);
 
-                } catch (IOException e) {
-                    e.printStackTrace();
+
+                    Address address = addressList.get(0);
+                    LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+                    getMapInfo(latLng);
+                } catch (Exception e) {
+                    Toast.makeText(MyApplication.getAppContext(), "Информация не найдена", Toast.LENGTH_LONG).show();
+
                 }
-                Address address = addressList.get(0);
-                LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
-                getMapInfo(latLng);
-                locationSearch.setText("");
             }
+            locationSearch.setText("");
             return true;
 
         }
@@ -141,26 +145,41 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    private void getMapInfo(LatLng latLng) {
+    private void getMapInfo(final LatLng latLng) {
+
         mMap.clear();
         this.latLng = latLng;
 
         if (isOnline()) {
             marker.position(latLng);
             mMap.addMarker(marker);
-            mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-            Geocoder gcd = new Geocoder(this, Locale.getDefault());
-            List<Address> list = new ArrayList<>();
-            try {
-                list = gcd.getFromLocation(marker.getPosition().latitude, marker.getPosition().longitude, 1);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            address = list.get(0);
-            mPresenter.onMapWasClicked(String.valueOf(latLng.latitude), String.valueOf(latLng.longitude));
+            mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng), 500, new GoogleMap.CancelableCallback() {
+                @Override
+                public void onFinish() {
+                    try {
+                        Geocoder gcd = new Geocoder(MyApplication.getAppContext(), Locale.getDefault());
+                        List<Address> list = new ArrayList<>();
+                        try {
+                            list = gcd.getFromLocation(marker.getPosition().latitude, marker.getPosition().longitude, 1);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        address = list.get(0);
+                        mPresenter.onMapWasClicked(String.valueOf(latLng.latitude), String.valueOf(latLng.longitude));
+                    } catch (Exception e) {
+                        Toast.makeText(MyApplication.getAppContext(), "Информация не найдена", Toast.LENGTH_LONG).show();
+                    }
+                }
+
+                @Override
+                public void onCancel() {
+                }
+            });
+
         } else {
             Toast.makeText(this, "Отсутствувет интернет соединение", Toast.LENGTH_LONG).show();
         }
+
     }
 
     @Override
@@ -197,10 +216,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Runtime runtime = Runtime.getRuntime();
         try {
             Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
-            int     exitValue = ipProcess.waitFor();
+            int exitValue = ipProcess.waitFor();
             return (exitValue == 0);
-        } catch (IOException e)          { e.printStackTrace(); }
-        catch (InterruptedException e) { e.printStackTrace(); }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         return false;
     }

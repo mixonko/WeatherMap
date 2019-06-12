@@ -1,14 +1,19 @@
 package com.myapp.test.weathermap.presenter;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.myapp.test.weathermap.MainContract;
+import com.myapp.test.weathermap.MyApplication;
+import com.myapp.test.weathermap.R;
 import com.myapp.test.weathermap.presenter.model.CurrentWeather.Weather;
 import com.myapp.test.weathermap.presenter.model.CurrentWeather.WeatherInfo;
 import com.myapp.test.weathermap.repository.MainRepository;
-import java.util.concurrent.ExecutionException;
 
 
 public class MainPresenter implements MainContract.MainPresenter {
@@ -70,8 +75,14 @@ public class MainPresenter implements MainContract.MainPresenter {
 
             temp = "Температура: " + getCelsius(weatherInfo.getMain().getTemp()) + " °C";
             wind = "Скорость ветра " + String.valueOf(weatherInfo.getWind().getSpeed()) + " м/с";
-            weather = "Небо: " + getWeather(weatherInfo.getWeather());
+            weather = getWeather(weatherInfo.getWeather());
             mView.showCurrentWeather(temp, wind, weather);
+
+
+//            Bitmap bitmap = BitmapFactory.decodeResource(MyApplication.getAppContext().getResources(),
+//                    R.drawable.common_full_open_on_phone);
+//
+//            Drawable d = new BitmapDrawable(getResources(), bitmap);
 
         } else mView.showCurrentWeather("Сервер", "не", "отвечает");
 
