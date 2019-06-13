@@ -1,15 +1,14 @@
 package com.myapp.test.weathermap;
 
-import com.myapp.test.weathermap.presenter.model.TwoWeeksWeather.WeatherInfo;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.myapp.test.weathermap.view.ExampleAdapter;
 
-import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 public interface MainContract  {
 
     interface View {
-        void showCurrentWeather(String temp, String wind, String weather);
+        void showCurrentWeather(String temp, String wind, String weather, BitmapDescriptor icon);
     }
 
     interface MainPresenter {

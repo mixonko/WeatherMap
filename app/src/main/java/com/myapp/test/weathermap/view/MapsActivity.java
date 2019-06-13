@@ -20,6 +20,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -55,8 +56,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        marker = new MarkerOptions();
-
         view = getLayoutInflater().inflate(R.layout.marker_info_windows, null);
 
         name = view.findViewById(R.id.name);
@@ -75,14 +74,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.getUiSettings().setZoomControlsEnabled(true);
-
         mMap.setOnMyLocationButtonClickListener(this);
         mMap.setOnMapClickListener(this);
         mMap.setInfoWindowAdapter(this);
@@ -148,10 +145,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void getMapInfo(final LatLng latLng) {
 
         mMap.clear();
+        marker = new MarkerOptions();
+
         this.latLng = latLng;
 
         if (isOnline()) {
             marker.position(latLng);
+
             mMap.addMarker(marker);
             mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng), 500, new GoogleMap.CancelableCallback() {
                 @Override
@@ -183,11 +183,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void showCurrentWeather(String getTemp, String getWind, String getWeather) {
+    public void showCurrentWeather(String getTemp, String getWind, String getWeather, BitmapDescriptor icon) {
         name.setText(address.getAddressLine(0));
         temperature.setText(getTemp);
         wind.setText(getWind);
         weather.setText(getWeather);
+        mMap.clear();
+        marker.icon(icon);
         mMap.addMarker(marker).showInfoWindow();
     }
 
@@ -204,12 +206,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public View getInfoWindow(Marker marker) {
-        return null;
+        return view;
     }
 
     @Override
     public View getInfoContents(Marker marker) {
-        return view;
+        return null;
     }
 
     protected boolean isOnline() {
