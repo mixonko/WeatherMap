@@ -52,6 +52,25 @@ public class MainPresenter implements MainContract.MainPresenter {
 
     }
 
+    @Override
+    public void onMenuWasClicked(final String timeZone, final String zoom, final String x, final String y) {
+        new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object[] objects) {
+                result = mRepository.loadLayer(timeZone, zoom, x, y);
+                return result;
+            }
+
+            @Override
+            protected void onPostExecute(Object o) {
+                super.onPostExecute(o);
+                View(String.valueOf(o));
+            }
+        }.execute();
+    }
+
+
+
     private String getCelsius(Double kelvin) {
         String conversion = (String.valueOf(kelvin - 273.15));
         int position = conversion.indexOf(".");
