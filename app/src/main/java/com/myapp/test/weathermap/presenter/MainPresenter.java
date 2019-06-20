@@ -1,9 +1,12 @@
 package com.myapp.test.weathermap.presenter;
 
 import android.os.AsyncTask;
+import android.view.MotionEvent;
+import android.view.View;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.myapp.test.weathermap.MainContract;
@@ -12,16 +15,15 @@ import com.myapp.test.weathermap.presenter.model.CurrentWeather.Weather;
 import com.myapp.test.weathermap.presenter.model.CurrentWeather.WeatherInfo;
 import com.myapp.test.weathermap.repository.MainRepository;
 
+import java.io.IOException;
 
 public class MainPresenter implements MainContract.MainPresenter {
 
     private MainContract.View mView;
     private MainRepository mRepository;
 
-    private String result;
-
     private WeatherInfo weatherInfo;
-
+    private String result;
     private String temp;
     private String wind;
     private String weather;
@@ -34,56 +36,60 @@ public class MainPresenter implements MainContract.MainPresenter {
     }
 
     @Override
-    public void onMapWasClicked(final String latitude, final String longitude) {
-
-        new AsyncTask() {
-            @Override
-            protected Object doInBackground(Object[] objects) {
-                result = mRepository.loadCurrentWeather(latitude, longitude);
-                return result;
-            }
-
-            @Override
-            protected void onPostExecute(Object o) {
-                super.onPostExecute(o);
-                View(String.valueOf(o));
-            }
-        }.execute();
-
+    public void onMapWasClicked (LatLng latLng) {
+        if(isOnline()) {
+            mView.hideEditText();
+            mView.animateCamera(latLng);
+            getWeatherInfo(latLng);
+        }else mView.showNoConnectionText();
     }
 
     @Override
-    public void onMenuWasClicked(final String timeZone, final String zoom, final String x, final String y) {
+    public void onButtonWasClicked() {
+        mView.showEditText();
+    }
+
+    @Override
+    public void onEditorActionWasClicked(LatLng latLng) {
+        mView.hideEditText();
+        if(isOnline()) {
+            mView.animateCamera(latLng);
+            getWeatherInfo(latLng);
+        }else mView.showNoConnectionText();
+    }
+
+    @Override
+    public void onEditTextDrawableWasClicked(View view, MotionEvent motionEvent) {
+        mView.deleteText(view, motionEvent);
+    }
+
+    @Override
+    public void onCameraMove() {
+        mView.hideEditText();
+    }
+
+    @Override
+    public void noInformation() {
+        mView.showNoInformation();
+    }
+
+    private void getWeatherInfo(final LatLng latLng){
         new AsyncTask() {
             @Override
             protected Object doInBackground(Object[] objects) {
-                result = mRepository.loadLayer(timeZone, zoom, x, y);
+                result = mRepository.loadCurrentWeather(String.valueOf(latLng.latitude), String.valueOf(latLng.longitude));
                 return result;
             }
 
             @Override
             protected void onPostExecute(Object o) {
                 super.onPostExecute(o);
-                View(String.valueOf(o));
+                ShowWeather(String.valueOf(o));
             }
         }.execute();
     }
 
-
-
-    private String getCelsius(Double kelvin) {
-        String conversion = (String.valueOf(kelvin - 273.15));
-        int position = conversion.indexOf(".");
-        String celsius = conversion.substring(0, position + 2);
-        return celsius;
-    }
-
-    private String getWeather(Weather[] wr) {
-        wr = weatherInfo.getWeather();
-        return wr[0].getDescription();
-    }
-
-    private void View(String res) {
+    private void ShowWeather(String res) {
         final Gson gson = new GsonBuilder().setPrettyPrinting().create();
         weatherInfo = gson.fromJson(res, WeatherInfo.class);
 
@@ -93,6 +99,7 @@ public class MainPresenter implements MainContract.MainPresenter {
             weather = getWeather(weatherInfo.getWeather());
             icon = getImage(weatherInfo.getWeather()[0].getIcon());
             BitmapDescriptor bitmap =  BitmapDescriptorFactory.fromResource(MyApplication.getAppContext().getResources().getIdentifier(icon, "drawable", MyApplication.getAppContext().getPackageName()));
+
             mView.showCurrentWeather(temp, wind, weather, bitmap);
 
         } else mView.showCurrentWeather("Сервер", "не", "отвечает", null);
@@ -103,5 +110,31 @@ public class MainPresenter implements MainContract.MainPresenter {
         String a = image.substring(image.length() - 1, image.length());
         String b = a + image.substring(0, image.length() - 1);
         return b;
+    }
+
+    private String getCelsius(Double kelvin) {
+        String conversion = (String.valueOf(kelvin - 273.15));
+        int position = conversion.indexOf(".");
+        String celsius = conversion.substring(0, position + 2);
+        return celsius;
+    }
+
+    private String getWeather(Weather[] wr) {
+        return wr[0].getDescription();
+    }
+
+    protected boolean isOnline() {
+        Runtime runtime = Runtime.getRuntime();
+        try {
+            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
+            int exitValue = ipProcess.waitFor();
+            return (exitValue == 0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return false;
     }
 }

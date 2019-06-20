@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.myapp.test.weathermap.R;
@@ -20,10 +21,9 @@ public class ExampleAdapter extends RecyclerView.Adapter<ExampleAdapter.ExampleV
     private ArrayList<WeatherInfo> weatherInfoArrayList;
     private WeatherInfo weatherInfo;
 
-    public ExampleAdapter( ArrayList<WeatherInfo> weatherInfoArrayList) {
+    public ExampleAdapter(ArrayList<WeatherInfo> weatherInfoArrayList) {
         this.weatherInfoArrayList = weatherInfoArrayList;
     }
-
 
 
     public static class ExampleViewHolder extends RecyclerView.ViewHolder {
@@ -33,8 +33,9 @@ public class ExampleAdapter extends RecyclerView.Adapter<ExampleAdapter.ExampleV
         public TextView clouds;
         public TextView humidity;
         public TextView wind;
+        public Spinner spinner;
 
-        public ExampleViewHolder(@NonNull View itemView ) {
+        public ExampleViewHolder(@NonNull View itemView) {
             super(itemView);
             date = itemView.findViewById(R.id.date);
             temp = itemView.findViewById(R.id.temp);
@@ -42,7 +43,6 @@ public class ExampleAdapter extends RecyclerView.Adapter<ExampleAdapter.ExampleV
             clouds = itemView.findViewById(R.id.clouds);
             humidity = itemView.findViewById(R.id.humidity);
             wind = itemView.findViewById(R.id.wind);
-
         }
     }
 
@@ -50,7 +50,7 @@ public class ExampleAdapter extends RecyclerView.Adapter<ExampleAdapter.ExampleV
     @NonNull
     @Override
     public ExampleViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.example_item, viewGroup, false);
+        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.example_item2, viewGroup, false);
         ExampleViewHolder exampleViewHolder = new ExampleViewHolder(v);
         return exampleViewHolder;
     }
@@ -59,21 +59,21 @@ public class ExampleAdapter extends RecyclerView.Adapter<ExampleAdapter.ExampleV
     public void onBindViewHolder(@NonNull ExampleViewHolder exampleViewHolder, int i) {
         weatherInfo = weatherInfoArrayList.get(i);
 
-        DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy, HH:mm");
-        Date time = Calendar.getInstance().getTime() ;
-
-        exampleViewHolder.date.setText(getDate(weatherInfo.getDt()));
-        exampleViewHolder.temp.setText("Температура: " + String.valueOf(getCelsius(weatherInfo.getMain().getTemp())) + " °C");
-        exampleViewHolder.weather.setText("Небо: " + weatherInfo.getWeather()[0].getDescription());
-        exampleViewHolder.clouds.setText("Облачность: " + String.valueOf(weatherInfo.getClouds().getAll()) + " %");
-        exampleViewHolder.humidity.setText("Влажность: " + String.valueOf(weatherInfo.getMain().getHumidity()) + " %");
-        exampleViewHolder.wind.setText("Скорость ветра: " + String.valueOf(weatherInfo.getWind().getSpeed()) + " м/c");
+//        DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy, HH:mm");
+//        Date time = Calendar.getInstance().getTime();
+//
+//        exampleViewHolder.date.setText(getDate(weatherInfo.getDt()));
+//        exampleViewHolder.temp.setText("Температура: " + String.valueOf(getCelsius(weatherInfo.getMain().getTemp())) + " °C");
+//        exampleViewHolder.weather.setText("Небо: " + weatherInfo.getWeather()[0].getDescription());
+//        exampleViewHolder.clouds.setText("Облачность: " + String.valueOf(weatherInfo.getClouds().getAll()) + " %");
+//        exampleViewHolder.humidity.setText("Влажность: " + String.valueOf(weatherInfo.getMain().getHumidity()) + " %");
+//        exampleViewHolder.wind.setText("Скорость ветра: " + String.valueOf(weatherInfo.getWind().getSpeed()) + " м/c");
 
     }
 
-    private String getDate (long dt){
+    private String getDate(long dt) {
         return new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new Date
-                (dt*1000 ));
+                (dt * 1000));
 
     }
 

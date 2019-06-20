@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
+import android.service.quicksettings.TileService;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
@@ -24,25 +26,17 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Tile;
-import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
-import com.google.android.gms.maps.model.UrlTileProvider;
 import com.myapp.test.weathermap.MainContract;
 import com.myapp.test.weathermap.MyApplication;
 import com.myapp.test.weathermap.R;
 import com.myapp.test.weathermap.presenter.MainPresenter;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener,
-        GoogleMap.OnMapClickListener, GoogleMap.InfoWindowAdapter, GoogleMap.OnInfoWindowClickListener, MainContract.View,
-        View.OnClickListener, TextView.OnEditorActionListener, TileProvider {
+        GoogleMap.OnMapClickListener, GoogleMap.InfoWindowAdapter, GoogleMap.OnInfoWindowClickListener, MainContract.View{
 
     private GoogleMap mMap;
     private Marker marker;
@@ -51,12 +45,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private EditText locationSearch;
     private Button locationSearchButton;
     private View view;
-    private Address address;
+    private List<Address> addressList;
+    private Geocoder geocoder;
     public static final String NAME = "name";
     public static final String LATITUDE = "latitude";
     public static final String LONGITUDE = "longitude";
     private static final String WEATHER_MAP_URL_FORMAT =
-            "https://tilecache.rainviewer.com/v2/radar/1560885600/512/%d/%d/%d.png";
+            "https://tilecache.rainviewer.com/v2/radar/1560888000/512/%d/%d/%d.png?color=1";
     private LatLng latLng;
     private TileProvider tileProvider;
 
@@ -67,17 +62,52 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         view = getLayoutInflater().inflate(R.layout.marker_info_windows, null);
 
+        mPresenter = new MainPresenter(this);
+
         name = view.findViewById(R.id.name);
         temperature = view.findViewById(R.id.temperature);
         wind = view.findViewById(R.id.wind);
         weather = view.findViewById(R.id.weather);
         locationSearch = findViewById(R.id.location_search);
-        locationSearch.setOnEditorActionListener(this);
+        locationSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+                if (i == EditorInfo.IME_ACTION_SEARCH) {
+
+                    String location = locationSearch.getText().toString();
+
+                    if (!location.equals("")) {
+                        try {
+                            addressList = geocoder.getFromLocationName(location, 1);
+
+                            Address address = addressList.get(0);
+                            LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+                            mPresenter.onEditorActionWasClicked(latLng);
+                        } catch (Exception e) {
+                            mPresenter.noInformation();
+                        }
+                    }
+                    locationSearch.setText("");
+                    return true;
+                }
+                return false;
+            }
+        });
+        locationSearch.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                mPresenter.onEditTextDrawableWasClicked(view, motionEvent);
+                return false;
+            }
+        });
 
         locationSearchButton = findViewById(R.id.locationSearchButton);
-        locationSearchButton.setOnClickListener(this);
-
-        mPresenter = new MainPresenter(this);
+        locationSearchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mPresenter.onButtonWasClicked();
+            }
+        });
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -94,6 +124,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setInfoWindowAdapter(this);
         mMap.setOnInfoWindowClickListener(this);
         mMap.setOnMapClickListener(this);
+        mMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
+            @Override
+            public void onCameraMove() {
+                mPresenter.onCameraMove();
+            }
+        });
+
+        geocoder = new Geocoder(MyApplication.getAppContext(), Locale.getDefault());
 
         if (ActivityCompat.checkSelfPermission(MyApplication.getAppContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MyApplication.getAppContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
@@ -101,22 +139,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         mMap.setMyLocationEnabled(true);
 
-        tileProvider = new UrlTileProvider(512, 512) {
-            @Override
-            public  URL getTileUrl(int x, int y, int zoom) {
-                String s = String.format(WEATHER_MAP_URL_FORMAT, zoom, x, y);
-                URL url = null;
-                try {
-                    url = new URL(s);
-                } catch (MalformedURLException e) {
-                    throw new AssertionError(e);
-                }
-
-                return url;
-            }
-        };
-
-        mMap.addTileOverlay(new TileOverlayOptions().tileProvider(tileProvider));
+//        tileProvider = new UrlTileProvider(512, 512) {
+//            @Override
+//            public URL getTileUrl(int x, int y, int zoom) {
+//                String s = String.format(WEATHER_MAP_URL_FORMAT, zoom, x, y);
+//                URL url = null;
+//                try {
+//                    url = new URL(s);
+//                } catch (MalformedURLException e) {
+//                    throw new AssertionError(e);
+//                }
+//
+//                return url;
+//            }
+//        };
+//
+//        mMap.addTileOverlay(new TileOverlayOptions().tileProvider(tileProvider));
     }
 
     @Override
@@ -125,106 +163,71 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void onMapClick(LatLng latLng) {
-            getMapInfo(latLng);
+    public void onMapClick(final LatLng latLng) {
+        mPresenter.onMapWasClicked(latLng);
     }
 
     @Override
-    public void onClick(View view) {
+    public void showCurrentWeather(String getTemp, String getWind, String getWeather, BitmapDescriptor icon) {
+
+        try {
+            addressList = geocoder.getFromLocation(marker.getPosition().latitude, marker.getPosition().longitude, 1);
+            name.setText(String.valueOf(addressList.get(0).getAddressLine(0)));
+            temperature.setText(getTemp);
+            wind.setText(getWind);
+            weather.setText(getWeather);
+            marker.setIcon(icon);
+            marker.showInfoWindow();
+            locationSearch.setText(String.valueOf(addressList.get(0).getAddressLine(0)));
+        } catch (Exception e) {
+            mPresenter.noInformation();
+        }
+
+    }
+
+    @Override
+    public void showEditText() {
         locationSearchButton.setVisibility(View.INVISIBLE);
         locationSearch.setVisibility(View.VISIBLE);
     }
 
     @Override
-    public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
+    public void hideEditText() {
         locationSearchButton.setVisibility(View.VISIBLE);
         locationSearch.setVisibility(View.INVISIBLE);
-        if (i == EditorInfo.IME_ACTION_SEARCH) {
+    }
 
-            String location = locationSearch.getText().toString();
-            List<Address> addressList = null;
+    @Override
+    public void showNoConnectionText() {
+        Toast.makeText(MyApplication.getAppContext(), "Отсутствует интернет соединение", Toast.LENGTH_LONG).show();
+    }
 
-            if (!location.equals("")) {
-                try {
-                    Geocoder geocoder = new Geocoder(MapsActivity.this);
+    @Override
+    public void showNoInformation() {
+        locationSearch.setText("");
+        Toast.makeText(MyApplication.getAppContext(), "Информация не найдена", Toast.LENGTH_LONG).show();
+    }
 
-                    addressList = geocoder.getFromLocationName(location, 1);
-
-
-                    Address address = addressList.get(0);
-                    LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
-                    getMapInfo(latLng);
-                } catch (Exception e) {
-                    Toast.makeText(MyApplication.getAppContext(), "Информация не найдена", Toast.LENGTH_LONG).show();
-
-                }
+    @Override
+    public void deleteText(View view, MotionEvent motionEvent) {
+        final int DRAWABLE_RIGHT = 2;
+        if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+            if (motionEvent.getRawX() >= (locationSearch.getRight() - locationSearch.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
+                locationSearch.setText("");
             }
-            locationSearch.setText("");
-            return true;
-
         }
-        return false;
-
     }
 
-    private void getMapInfo(final LatLng latLng) {
-
-        try{
+    @Override
+    public void animateCamera(final LatLng latLng) {
+        try {
             marker.remove();
-        }catch (Exception e){
+        } catch (Exception e) {
         }
+        marker = mMap.addMarker(new MarkerOptions()
+                .position(latLng));
 
-        this.latLng = latLng;
-        if (isOnline()) {
-
-            marker = mMap.addMarker(new MarkerOptions()
-                    .position(latLng));
-
-            mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng), 500, new GoogleMap.CancelableCallback() {
-                @Override
-                public void onFinish() {
-                    try {
-                        Geocoder gcd = new Geocoder(MyApplication.getAppContext(), Locale.getDefault());
-                        List<Address> list = new ArrayList<>();
-                        try {
-                            list = gcd.getFromLocation(marker.getPosition().latitude, marker.getPosition().longitude, 1);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        address = list.get(0);
-                        mPresenter.onMapWasClicked(String.valueOf(latLng.latitude), String.valueOf(latLng.longitude));
-                    } catch (Exception e) {
-                        Toast.makeText(MyApplication.getAppContext(), "Информация не найдена", Toast.LENGTH_LONG).show();
-                    }
-                }
-
-                @Override
-                public void onCancel() {
-                }
-            });
-
-        } else {
-            Toast.makeText(this, "Отсутствувет интернет соединение", Toast.LENGTH_LONG).show();
-        }
-
-    }
-
-
-
-    @Override
-    public void showCurrentWeather(String getTemp, String getWind, String getWeather, BitmapDescriptor icon)    {
-        mMap.addTileOverlay(new TileOverlayOptions().tileProvider(tileProvider));
-        name.setText(address.getAddressLine(0));
-        temperature.setText(getTemp);
-        wind.setText(getWind);
-        weather.setText(getWeather);
-        marker.setIcon(icon);
-        marker.showInfoWindow();
-    }
-
-    @Override
-    public void addLayer() {
-
+        mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng), 500, null);
     }
 
     @Override
@@ -248,23 +251,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return null;
     }
 
-    protected boolean isOnline() {
-        Runtime runtime = Runtime.getRuntime();
-        try {
-            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
-            int exitValue = ipProcess.waitFor();
-            return (exitValue == 0);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        return false;
-    }
-
-    @Override
-    public Tile getTile(int i, int i1, int i2) {
-        return null;
-    }
 }
