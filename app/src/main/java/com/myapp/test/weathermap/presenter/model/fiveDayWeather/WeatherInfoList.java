@@ -1,4 +1,4 @@
-package com.myapp.test.weathermap.presenter.model.TwoWeeksWeather;
+package com.myapp.test.weathermap.presenter.model.fiveDayWeather;
 
 
 public class WeatherInfoList {

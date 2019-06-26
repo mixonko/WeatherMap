@@ -1,4 +1,4 @@
-package com.myapp.test.weathermap.presenter.model.TwoWeeksWeather;
+package com.myapp.test.weathermap.presenter.model.fiveDayWeather;
 
 public class WeatherInfo {
     private Main main;
@@ -6,13 +6,15 @@ public class WeatherInfo {
     private Weather[] weather;
     private Clouds clouds;
     private Wind wind;
+    private String dt_txt;
 
-    public WeatherInfo(Main main, int dt_txt, Weather[] weather, Clouds clouds, Wind wind) {
+    public WeatherInfo(Main main, long dt, Weather[] weather, Clouds clouds, Wind wind, String dt_txt) {
         this.main = main;
-        this.dt = dt_txt;
+        this.dt = dt;
         this.weather = weather;
         this.clouds = clouds;
         this.wind = wind;
+        this.dt_txt = dt_txt;
     }
 
     public Main getMain() {
@@ -53,5 +55,13 @@ public class WeatherInfo {
 
     public void setWind(Wind wind) {
         this.wind = wind;
+    }
+
+    public String getDt_txt() {
+        return dt_txt;
+    }
+
+    public void setDt_txt(String dt_txt) {
+        this.dt_txt = dt_txt;
     }
 }

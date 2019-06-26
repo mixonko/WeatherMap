@@ -1,19 +1,19 @@
-package com.myapp.test.weathermap.presenter.model.CurrentWeather;
+package com.myapp.test.weathermap.presenter.model.currentWeather;
 
 
 public class WeatherInfo {
-    private com.myapp.test.weathermap.presenter.model.CurrentWeather.Weather[] weather;
-    private com.myapp.test.weathermap.presenter.model.CurrentWeather.Main main;
-    private com.myapp.test.weathermap.presenter.model.CurrentWeather.Wind wind;
+    private com.myapp.test.weathermap.presenter.model.currentWeather.Weather[] weather;
+    private com.myapp.test.weathermap.presenter.model.currentWeather.Main main;
+    private com.myapp.test.weathermap.presenter.model.currentWeather.Wind wind;
     private String cod;
 
-    public WeatherInfo(com.myapp.test.weathermap.presenter.model.CurrentWeather.Weather[] weather, com.myapp.test.weathermap.presenter.model.CurrentWeather.Main main, com.myapp.test.weathermap.presenter.model.CurrentWeather.Wind wind, String cod) {
+    public WeatherInfo(com.myapp.test.weathermap.presenter.model.currentWeather.Weather[] weather, com.myapp.test.weathermap.presenter.model.currentWeather.Main main, com.myapp.test.weathermap.presenter.model.currentWeather.Wind wind, String cod) {
         this.weather = weather;
         this.main = main;
         this.wind = wind;
     }
 
-    public com.myapp.test.weathermap.presenter.model.CurrentWeather.Weather[] getWeather() {
+    public com.myapp.test.weathermap.presenter.model.currentWeather.Weather[] getWeather() {
         return weather;
     }
 
@@ -21,7 +21,7 @@ public class WeatherInfo {
         this.weather = weather;
     }
 
-    public com.myapp.test.weathermap.presenter.model.CurrentWeather.Main getMain() {
+    public com.myapp.test.weathermap.presenter.model.currentWeather.Main getMain() {
         return main;
     }
 
@@ -29,7 +29,7 @@ public class WeatherInfo {
         this.main = main;
     }
 
-    public com.myapp.test.weathermap.presenter.model.CurrentWeather.Wind getWind() {
+    public com.myapp.test.weathermap.presenter.model.currentWeather.Wind getWind() {
         return wind;
     }
 

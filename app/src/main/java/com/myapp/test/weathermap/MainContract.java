@@ -5,7 +5,9 @@ import android.view.MotionEvent;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
-import com.myapp.test.weathermap.view.ExampleAdapter;
+import com.myapp.test.weathermap.presenter.model.fiveDayWeather.WeatherInfo;
+
+import java.util.ArrayList;
 
 public interface MainContract  {
 
@@ -17,12 +19,14 @@ public interface MainContract  {
         void showNoConnectionText();
         void deleteText(android.view.View view, MotionEvent motionEvent);
         void showNoInformation();
+        void startFiveDayWeatherActivity();
 
     }
 
     interface MainPresenter {
         void onMapWasClicked (LatLng latLng);
         void onButtonWasClicked();
+        void onInfoWindowsWasClicked();
         void onEditorActionWasClicked(LatLng latLng);
         void onEditTextDrawableWasClicked(android.view.View view, MotionEvent motionEvent);
         void onCameraMove();
@@ -30,7 +34,7 @@ public interface MainContract  {
     }
 
     interface ListWeatherView{
-         void showTwoWeeksWeather(ExampleAdapter exampleAdapter);
+         void showFiveDayWeather(Object[] days);
     }
 
     interface ListPresenter{
@@ -40,7 +44,7 @@ public interface MainContract  {
 
 
     interface Repository {
-        String loadTwoWeeksWeather(String latitude, String longitude);
+        String loadFiveDayWeather(String latitude, String longitude);
         String loadCurrentWeather(String latitude, String longitude);
         String loadTimeZone();
         String loadLayer(String timeZone, String zoom, String x, String y);

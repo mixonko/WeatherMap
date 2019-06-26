@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">Weather Map</string>
     <string name="title_activity_maps">Map</string>
+    <string name="temp">Температура: </string>
+    <string name="sky">Небо: </string>
+    <string name="clouds">Облачность: </string>
+    <string name="humidity">Влажность: </string>
+    <string name="wind">Скорость ветра: </string>
 </resources>

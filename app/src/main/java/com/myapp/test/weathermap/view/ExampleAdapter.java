@@ -9,7 +9,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.myapp.test.weathermap.R;
-import com.myapp.test.weathermap.presenter.model.TwoWeeksWeather.WeatherInfo;
+import com.myapp.test.weathermap.presenter.model.fiveDayWeather.WeatherInfo;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -50,7 +50,7 @@ public class ExampleAdapter extends RecyclerView.Adapter<ExampleAdapter.ExampleV
     @NonNull
     @Override
     public ExampleViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.example_item2, viewGroup, false);
+        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.example_item, viewGroup, false);
         ExampleViewHolder exampleViewHolder = new ExampleViewHolder(v);
         return exampleViewHolder;
     }
@@ -59,15 +59,12 @@ public class ExampleAdapter extends RecyclerView.Adapter<ExampleAdapter.ExampleV
     public void onBindViewHolder(@NonNull ExampleViewHolder exampleViewHolder, int i) {
         weatherInfo = weatherInfoArrayList.get(i);
 
-//        DateFormat df = new SimpleDateFormat("EEE, d MMM yyyy, HH:mm");
-//        Date time = Calendar.getInstance().getTime();
-//
-//        exampleViewHolder.date.setText(getDate(weatherInfo.getDt()));
-//        exampleViewHolder.temp.setText("Температура: " + String.valueOf(getCelsius(weatherInfo.getMain().getTemp())) + " °C");
-//        exampleViewHolder.weather.setText("Небо: " + weatherInfo.getWeather()[0].getDescription());
-//        exampleViewHolder.clouds.setText("Облачность: " + String.valueOf(weatherInfo.getClouds().getAll()) + " %");
-//        exampleViewHolder.humidity.setText("Влажность: " + String.valueOf(weatherInfo.getMain().getHumidity()) + " %");
-//        exampleViewHolder.wind.setText("Скорость ветра: " + String.valueOf(weatherInfo.getWind().getSpeed()) + " м/c");
+        exampleViewHolder.date.setText(getDate(weatherInfo.getDt()));
+        exampleViewHolder.temp.setText(String.valueOf(getCelsius(weatherInfo.getMain().getTemp())) + " °C");
+        exampleViewHolder.weather.setText(weatherInfo.getWeather()[0].getDescription());
+        exampleViewHolder.clouds.setText(String.valueOf(weatherInfo.getClouds().getAll()) + " %");
+        exampleViewHolder.humidity.setText(String.valueOf(weatherInfo.getMain().getHumidity()) + " %");
+        exampleViewHolder.wind.setText(String.valueOf(weatherInfo.getWind().getSpeed()) + " м/c");
 
     }
 

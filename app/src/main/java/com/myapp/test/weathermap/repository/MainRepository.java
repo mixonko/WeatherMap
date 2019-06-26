@@ -16,7 +16,7 @@ public class MainRepository implements MainContract.Repository {
     private String layer;
 
     @Override
-    public String loadTwoWeeksWeather(String latitude, String longitude) {
+    public String loadFiveDayWeather(String latitude, String longitude) {
 
         final OkHttpClient client = new OkHttpClient();
         final Request request = new Request.Builder()

@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
-import android.service.quicksettings.TileService;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -31,6 +30,7 @@ import com.myapp.test.weathermap.MainContract;
 import com.myapp.test.weathermap.MyApplication;
 import com.myapp.test.weathermap.R;
 import com.myapp.test.weathermap.presenter.MainPresenter;
+
 
 import java.util.List;
 import java.util.Locale;
@@ -164,7 +164,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onMapClick(final LatLng latLng) {
+        this.latLng = latLng;
         mPresenter.onMapWasClicked(latLng);
+        marker = mMap.addMarker(new MarkerOptions()
+                .position(latLng));
     }
 
     @Override
@@ -209,6 +212,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
+    public void startFiveDayWeatherActivity() {
+        Intent intent = new Intent(MyApplication.getAppContext(), ListWeatherActivity.class);
+        intent.putExtra(NAME, name.getText().toString());
+        String latitude = String.valueOf(latLng.latitude);
+        String longitude = String.valueOf(latLng.longitude);
+        intent.putExtra(LATITUDE, latitude);
+        intent.putExtra(LONGITUDE, longitude);
+        startActivity(intent);
+    }
+
+    @Override
     public void deleteText(View view, MotionEvent motionEvent) {
         final int DRAWABLE_RIGHT = 2;
         if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
@@ -224,26 +238,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             marker.remove();
         } catch (Exception e) {
         }
-        marker = mMap.addMarker(new MarkerOptions()
-                .position(latLng));
 
         mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng), 500, null);
     }
 
     @Override
     public void onInfoWindowClick(Marker marker) {
-        Intent intent = new Intent(this, ListWeatherActivity.class);
-        intent.putExtra(NAME, name.getText().toString());
-        String latitude = String.valueOf(latLng.latitude);
-        String longitude = String.valueOf(latLng.longitude);
-        intent.putExtra(LATITUDE, latitude);
-        intent.putExtra(LONGITUDE, longitude);
-        startActivity(intent);
+        mPresenter.onInfoWindowsWasClicked();
     }
 
     @Override
     public View getInfoWindow(Marker marker) {
-        return view;
+        return  view;
     }
 
     @Override

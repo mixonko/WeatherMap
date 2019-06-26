@@ -1,5 +1,4 @@
-package com.myapp.test.weathermap.presenter.model.currentWeather;
-
+package com.myapp.test.weathermap.presenter.model.fiveDayWeather;
 
 public class Weather {
     private String description;

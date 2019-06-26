@@ -1,4 +1,4 @@
-package com.myapp.test.weathermap.presenter.model.CurrentWeather;
+package com.myapp.test.weathermap.presenter.model.currentWeather;
 
 public class Wind {
     private double speed;

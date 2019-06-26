@@ -11,8 +11,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.myapp.test.weathermap.MainContract;
 import com.myapp.test.weathermap.MyApplication;
-import com.myapp.test.weathermap.presenter.model.CurrentWeather.Weather;
-import com.myapp.test.weathermap.presenter.model.CurrentWeather.WeatherInfo;
+import com.myapp.test.weathermap.presenter.model.currentWeather.Weather;
+import com.myapp.test.weathermap.presenter.model.currentWeather.WeatherInfo;
 import com.myapp.test.weathermap.repository.MainRepository;
 
 import java.io.IOException;
@@ -36,44 +36,15 @@ public class MainPresenter implements MainContract.MainPresenter {
     }
 
     @Override
-    public void onMapWasClicked (LatLng latLng) {
-        if(isOnline()) {
+    public void onMapWasClicked(LatLng latLng) {
+        if (isOnline()) {
             mView.hideEditText();
             mView.animateCamera(latLng);
             getWeatherInfo(latLng);
-        }else mView.showNoConnectionText();
+        } else mView.showNoConnectionText();
     }
 
-    @Override
-    public void onButtonWasClicked() {
-        mView.showEditText();
-    }
-
-    @Override
-    public void onEditorActionWasClicked(LatLng latLng) {
-        mView.hideEditText();
-        if(isOnline()) {
-            mView.animateCamera(latLng);
-            getWeatherInfo(latLng);
-        }else mView.showNoConnectionText();
-    }
-
-    @Override
-    public void onEditTextDrawableWasClicked(View view, MotionEvent motionEvent) {
-        mView.deleteText(view, motionEvent);
-    }
-
-    @Override
-    public void onCameraMove() {
-        mView.hideEditText();
-    }
-
-    @Override
-    public void noInformation() {
-        mView.showNoInformation();
-    }
-
-    private void getWeatherInfo(final LatLng latLng){
+    private void getWeatherInfo(final LatLng latLng) {
         new AsyncTask() {
             @Override
             protected Object doInBackground(Object[] objects) {
@@ -98,7 +69,7 @@ public class MainPresenter implements MainContract.MainPresenter {
             wind = "Скорость ветра: " + String.valueOf(weatherInfo.getWind().getSpeed()) + " м/с";
             weather = getWeather(weatherInfo.getWeather());
             icon = getImage(weatherInfo.getWeather()[0].getIcon());
-            BitmapDescriptor bitmap =  BitmapDescriptorFactory.fromResource(MyApplication.getAppContext().getResources().getIdentifier(icon, "drawable", MyApplication.getAppContext().getPackageName()));
+            BitmapDescriptor bitmap = BitmapDescriptorFactory.fromResource(MyApplication.getAppContext().getResources().getIdentifier(icon, "drawable", MyApplication.getAppContext().getPackageName()));
 
             mView.showCurrentWeather(temp, wind, weather, bitmap);
 
@@ -106,7 +77,41 @@ public class MainPresenter implements MainContract.MainPresenter {
 
     }
 
-    private String getImage(String image){
+    @Override
+    public void onButtonWasClicked() {
+        mView.showEditText();
+    }
+
+    @Override
+    public void onInfoWindowsWasClicked() {
+        mView.startFiveDayWeatherActivity();
+    }
+
+    @Override
+    public void onEditorActionWasClicked(LatLng latLng) {
+        mView.hideEditText();
+        if (isOnline()) {
+            mView.animateCamera(latLng);
+            getWeatherInfo(latLng);
+        } else mView.showNoConnectionText();
+    }
+
+    @Override
+    public void onEditTextDrawableWasClicked(View view, MotionEvent motionEvent) {
+        mView.deleteText(view, motionEvent);
+    }
+
+    @Override
+    public void onCameraMove() {
+        mView.hideEditText();
+    }
+
+    @Override
+    public void noInformation() {
+        mView.showNoInformation();
+    }
+
+    private String getImage(String image) {
         String a = image.substring(image.length() - 1, image.length());
         String b = a + image.substring(0, image.length() - 1);
         return b;
