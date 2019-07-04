@@ -64,7 +64,9 @@ public class ListPresenter implements MainContract.ListPresenter {
         if (Integer.parseInt(weatherInfo.getCod()) == 200) {
             weatherInfoArrayList = new ArrayList<>(Arrays.asList(weatherInfo.getList()));
             Object[] days = sortByDay(weatherInfoArrayList);
-            mView.showFiveDayWeather(days);
+            mView.showFiveDayWeather((ArrayList<WeatherInfo>)days[0], (ArrayList<WeatherInfo>)days[1],
+                    (ArrayList<WeatherInfo>)days[2], (ArrayList<WeatherInfo>)days[3],
+                    (ArrayList<WeatherInfo>)days[4], (ArrayList<WeatherInfo>)days[5]);
         }
 
 
@@ -123,13 +125,15 @@ public class ListPresenter implements MainContract.ListPresenter {
                     count = i;
                 }
             }
-            return new Object[]{day1, day2, day3, day4, day5, day6};
+
+        }else{
+            day6 = null;
         }
-        return new Object[]{day1, day2, day3, day4, day5};
+        return new Object[]{day1, day2, day3, day4, day5, day6};
     }
 
     private String getDate(long dt) {
-        return new SimpleDateFormat("dd").format(new Date
+        return new SimpleDateFormat("DD-MM-YY").format(new Date
                 (dt * 1000));
 
     }

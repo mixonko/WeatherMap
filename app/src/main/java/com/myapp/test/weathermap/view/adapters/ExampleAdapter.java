@@ -1,4 +1,4 @@
-package com.myapp.test.weathermap.view;
+package com.myapp.test.weathermap.view.adapters;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -11,10 +11,8 @@ import android.widget.TextView;
 import com.myapp.test.weathermap.R;
 import com.myapp.test.weathermap.presenter.model.fiveDayWeather.WeatherInfo;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 
 public class ExampleAdapter extends RecyclerView.Adapter<ExampleAdapter.ExampleViewHolder> {
@@ -69,7 +67,7 @@ public class ExampleAdapter extends RecyclerView.Adapter<ExampleAdapter.ExampleV
     }
 
     private String getDate(long dt) {
-        return new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").format(new Date
+        return new SimpleDateFormat("HH:mm").format(new Date
                 (dt * 1000));
 
     }

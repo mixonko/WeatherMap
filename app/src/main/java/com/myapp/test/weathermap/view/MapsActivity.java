@@ -30,6 +30,7 @@ import com.myapp.test.weathermap.MainContract;
 import com.myapp.test.weathermap.MyApplication;
 import com.myapp.test.weathermap.R;
 import com.myapp.test.weathermap.presenter.MainPresenter;
+import com.myapp.test.weathermap.view.FiveDayWeatherActivity;
 
 
 import java.util.List;
@@ -213,7 +214,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void startFiveDayWeatherActivity() {
-        Intent intent = new Intent(MyApplication.getAppContext(), ListWeatherActivity.class);
+        Intent intent = new Intent(MyApplication.getAppContext(), FiveDayWeatherActivity.class);
         intent.putExtra(NAME, name.getText().toString());
         String latitude = String.valueOf(latLng.latitude);
         String longitude = String.valueOf(latLng.longitude);
