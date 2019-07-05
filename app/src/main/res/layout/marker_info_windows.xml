@@ -13,34 +13,26 @@
 
         <TextView
             android:id="@+id/name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#111"
+            style="@style/infoWindowsTV"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/temperature"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#111" />
+            style="@style/infoWindowsTV" />
 
         <TextView
             android:id="@+id/wind"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#111" />
+            style="@style/infoWindowsTV" />
 
         <TextView
             android:id="@+id/weather"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#111" />
+            style="@style/infoWindowsTV" />
     </LinearLayout>
 
     <ImageView
         android:layout_width="20dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="right"
-        android:src="@drawable/arrow"/>
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|center"
+        android:src="@drawable/arrow" />
 
 </FrameLayout>

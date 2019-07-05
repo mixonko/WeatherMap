@@ -12,8 +12,6 @@ import okhttp3.Response;
 public class MainRepository implements MainContract.Repository {
     private String result;
     private String resultList;
-    private String timeZone;
-    private String layer;
 
     @Override
     public String loadFiveDayWeather(String latitude, String longitude) {
@@ -45,39 +43,5 @@ public class MainRepository implements MainContract.Repository {
         }
         return result;
     }
-
-    @Override
-    public String loadTimeZone(){
-        final OkHttpClient client = new OkHttpClient();
-
-        final Request request = new Request.Builder()
-                .url("https://tilecache.rainviewer.com/api/maps.json")
-                .build();
-        try {
-            Response response = client.newCall(request).execute();
-            timeZone = response.body().string();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return timeZone;
-    }
-
-    @Override
-    public String loadLayer(String timeZone, String zoom, String x, String y){
-        final OkHttpClient client = new OkHttpClient();
-
-        final Request request = new Request.Builder()
-                .url("https://tilecache.rainviewer.com/v2/radar/" + timeZone + "/512/" + zoom +"/" + x +"/" + y + ".png")
-                .build();
-        try {
-            Response response = client.newCall(request).execute();
-            layer = response.body().string();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return layer;
-    }
-
-
 
 }

@@ -6,7 +6,6 @@
     android:layout_height="match_parent">
 
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:map="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
@@ -14,29 +13,35 @@
         android:layout_height="match_parent"
         tools:context=".view.MapsActivity" />
 
-    <FrameLayout
-        android:layout_width="match_parent"
+    <EditText
+        android:id="@+id/location_search"
+        android:layout_width="250dp"
+        android:layout_height="38dp"
+        android:layout_margin="12dp"
+        android:background="#afffffff"
+        android:drawableRight="@drawable/ic_clear_black_24dp"
+        android:hint="@string/editTextHint"
+        android:imeOptions="actionSearch"
+        android:paddingLeft="10dp"
+        android:singleLine="true"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/locationSearchButton"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="12dp">
+        android:layout_margin="12dp"
+        android:background="@drawable/ic_search_black_24dp"
+        android:onClick="onMapSearch" />
 
-        <EditText
-            android:id="@+id/location_search"
-            android:layout_width="250dp"
-            android:layout_height="38dp"
-            android:background="#afffffff"
-            android:hint="Введите адрес"
-            android:singleLine="true"
-            android:paddingLeft="10dp"
-            android:drawableRight="@drawable/ic_clear_black_24dp"
-            android:imeOptions="actionSearch"
-            android:visibility="invisible"/>
+    <Spinner
+        android:id="@+id/tileType"
+        android:layout_width="200dp"
+        android:layout_height="47dp"
+        android:layout_gravity="bottom|center"
+        android:layout_marginBottom="12dp"
+        android:alpha="0.7"
+        android:animateLayoutChanges="true"
+        android:gravity="center" />
 
-        <Button
-            android:id="@+id/locationSearchButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/ic_search_black_24dp"
-            android:onClick="onMapSearch" />
-
-    </FrameLayout>
 </FrameLayout>

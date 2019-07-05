@@ -13,14 +13,15 @@ public interface MainContract  {
 
     interface View {
         void showCurrentWeather(String temp, String wind, String weather, BitmapDescriptor icon);
-        void animateCamera(LatLng latLng);
+        void addMarker(LatLng latLng);
         void showEditText();
         void hideEditText();
+        void hideKeyboard();
         void showNoConnectionText();
         void deleteText(android.view.View view, MotionEvent motionEvent);
         void showNoInformation();
         void startFiveDayWeatherActivity();
-
+        void showTile();
     }
 
     interface MainPresenter {
@@ -31,6 +32,7 @@ public interface MainContract  {
         void onEditTextDrawableWasClicked(android.view.View view, MotionEvent motionEvent);
         void onCameraMove();
         void noInformation();
+        void spinerWasSelected();
     }
 
     interface ListWeatherView{
@@ -43,12 +45,8 @@ public interface MainContract  {
         void onActivityCreated(String latitude, String longitude);
     }
 
-
-
     interface Repository {
         String loadFiveDayWeather(String latitude, String longitude);
         String loadCurrentWeather(String latitude, String longitude);
-        String loadTimeZone();
-        String loadLayer(String timeZone, String zoom, String x, String y);
     }
 }

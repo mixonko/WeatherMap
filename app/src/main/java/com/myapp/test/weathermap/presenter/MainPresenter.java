@@ -39,7 +39,8 @@ public class MainPresenter implements MainContract.MainPresenter {
     public void onMapWasClicked(LatLng latLng) {
         if (isOnline()) {
             mView.hideEditText();
-            mView.animateCamera(latLng);
+            mView.hideKeyboard();
+            mView.addMarker(latLng);
             getWeatherInfo(latLng);
         } else mView.showNoConnectionText();
     }
@@ -70,9 +71,7 @@ public class MainPresenter implements MainContract.MainPresenter {
             weather = getWeather(weatherInfo.getWeather());
             icon = getImage(weatherInfo.getWeather()[0].getIcon());
             BitmapDescriptor bitmap = BitmapDescriptorFactory.fromResource(MyApplication.getAppContext().getResources().getIdentifier(icon, "drawable", MyApplication.getAppContext().getPackageName()));
-
             mView.showCurrentWeather(temp, wind, weather, bitmap);
-
         } else mView.showCurrentWeather("Сервер", "не", "отвечает", null);
 
     }
@@ -91,7 +90,7 @@ public class MainPresenter implements MainContract.MainPresenter {
     public void onEditorActionWasClicked(LatLng latLng) {
         mView.hideEditText();
         if (isOnline()) {
-            mView.animateCamera(latLng);
+            mView.addMarker(latLng);
             getWeatherInfo(latLng);
         } else mView.showNoConnectionText();
     }
@@ -104,11 +103,17 @@ public class MainPresenter implements MainContract.MainPresenter {
     @Override
     public void onCameraMove() {
         mView.hideEditText();
+        mView.hideKeyboard();
     }
 
     @Override
     public void noInformation() {
         mView.showNoInformation();
+    }
+
+    @Override
+    public void spinerWasSelected() {
+        mView.showTile();
     }
 
     private String getImage(String image) {

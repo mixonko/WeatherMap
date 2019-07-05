@@ -12,8 +12,12 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,19 +29,24 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.TileOverlay;
+import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
+import com.google.android.gms.maps.model.UrlTileProvider;
 import com.myapp.test.weathermap.MainContract;
 import com.myapp.test.weathermap.MyApplication;
 import com.myapp.test.weathermap.R;
 import com.myapp.test.weathermap.presenter.MainPresenter;
-import com.myapp.test.weathermap.view.FiveDayWeatherActivity;
 
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.Locale;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener,
-        GoogleMap.OnMapClickListener, GoogleMap.InfoWindowAdapter, GoogleMap.OnInfoWindowClickListener, MainContract.View{
+        GoogleMap.OnMapClickListener, GoogleMap.InfoWindowAdapter, GoogleMap.OnInfoWindowClickListener, MainContract.View,
+        GoogleMap.OnMarkerClickListener {
 
     private GoogleMap mMap;
     private Marker marker;
@@ -51,10 +60,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public static final String NAME = "name";
     public static final String LATITUDE = "latitude";
     public static final String LONGITUDE = "longitude";
-    private static final String WEATHER_MAP_URL_FORMAT =
-            "https://tilecache.rainviewer.com/v2/radar/1560888000/512/%d/%d/%d.png?color=1";
     private LatLng latLng;
-    private TileProvider tileProvider;
+    private TileOverlay tileOver;
+    private Spinner spinner;
+    private String tileType = null;
+    private Boolean showHideInfoWindow = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +79,49 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         temperature = view.findViewById(R.id.temperature);
         wind = view.findViewById(R.id.wind);
         weather = view.findViewById(R.id.weather);
+
+        spinner = findViewById(R.id.tileType);
+        String[] tileName = new String[]{"Выключено", "Осадки", "Облачность", "Температура", "Ветер", "Давление над ур. моря"};
+        ArrayAdapter<String> adpt = new ArrayAdapter(MyApplication.getAppContext(), android.R.layout.simple_list_item_activated_1, tileName);
+        spinner.setAdapter(adpt);
+
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                if (tileOver != null)
+                    tileOver.remove();
+                switch (i) {
+                    case 0:
+                        tileType = null;
+                        break;
+                    case 1:
+                        tileType = "precipitation_new";
+                        break;
+                    case 2:
+                        tileType = "clouds_new";
+                        break;
+                    case 3:
+                        tileType = "temp_new";
+                        break;
+                    case 4:
+                        tileType = "wind_new";
+                        break;
+                    case 5:
+                        tileType = "pressure_new";
+                        break;
+
+                }
+                if (tileType != null) mPresenter.spinerWasSelected();
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
         locationSearch = findViewById(R.id.location_search);
         locationSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -125,6 +178,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setInfoWindowAdapter(this);
         mMap.setOnInfoWindowClickListener(this);
         mMap.setOnMapClickListener(this);
+        mMap.setOnMarkerClickListener(this);
         mMap.setOnCameraMoveListener(new GoogleMap.OnCameraMoveListener() {
             @Override
             public void onCameraMove() {
@@ -140,22 +194,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         mMap.setMyLocationEnabled(true);
 
-//        tileProvider = new UrlTileProvider(512, 512) {
-//            @Override
-//            public URL getTileUrl(int x, int y, int zoom) {
-//                String s = String.format(WEATHER_MAP_URL_FORMAT, zoom, x, y);
-//                URL url = null;
-//                try {
-//                    url = new URL(s);
-//                } catch (MalformedURLException e) {
-//                    throw new AssertionError(e);
-//                }
-//
-//                return url;
-//            }
-//        };
-//
-//        mMap.addTileOverlay(new TileOverlayOptions().tileProvider(tileProvider));
     }
 
     @Override
@@ -167,8 +205,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapClick(final LatLng latLng) {
         this.latLng = latLng;
         mPresenter.onMapWasClicked(latLng);
-        marker = mMap.addMarker(new MarkerOptions()
-                .position(latLng));
     }
 
     @Override
@@ -202,6 +238,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
+    public void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) locationSearch.getContext().getSystemService(MyApplication.getAppContext().INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(locationSearch.getWindowToken(), 0);
+
+    }
+
+    @Override
     public void showNoConnectionText() {
         Toast.makeText(MyApplication.getAppContext(), "Отсутствует интернет соединение", Toast.LENGTH_LONG).show();
     }
@@ -224,6 +267,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
+    public void showTile() {
+        final String WEATHER_MAP_URL_FORMAT = "https://tile.openweathermap.org/map/" + tileType + "/%d/%d/%d.png?appid=db2c05a113d582c380b53504bc58b1fd";
+
+        TileProvider tileProvider = new UrlTileProvider(256, 256) {
+            @Override
+            public URL getTileUrl(int x, int y, int zoom) {
+                String fUrl = String.format(WEATHER_MAP_URL_FORMAT, zoom, x, y);
+                URL url = null;
+                try {
+                    url = new URL(fUrl);
+                } catch (MalformedURLException mfe) {
+                    mfe.printStackTrace();
+                }
+
+                return url;
+            }
+        };
+        tileOver = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(tileProvider));
+    }
+
+    @Override
     public void deleteText(View view, MotionEvent motionEvent) {
         final int DRAWABLE_RIGHT = 2;
         if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
@@ -234,11 +298,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void animateCamera(final LatLng latLng) {
+    public void addMarker(final LatLng latLng) {
         try {
             marker.remove();
         } catch (Exception e) {
         }
+        marker = mMap.addMarker(new MarkerOptions()
+                .position(latLng));
 
         mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng), 500, null);
     }
@@ -250,7 +316,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public View getInfoWindow(Marker marker) {
-        return  view;
+        return view;
     }
 
     @Override
@@ -258,4 +324,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return null;
     }
 
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        if (showHideInfoWindow) {
+            marker.hideInfoWindow();
+            showHideInfoWindow = false;
+            return true;
+        }
+        if (!showHideInfoWindow) {
+            marker.showInfoWindow();
+            showHideInfoWindow = true;
+            return true;
+        }
+        return true;
+    }
 }
