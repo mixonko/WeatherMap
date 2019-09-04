@@ -1,4 +1,4 @@
-package com.myapp.test.weathermap.presenter.model.currentWeather;
+package com.myapp.test.weathermap.entity.currentWeather;
 
 
 public class Weather {

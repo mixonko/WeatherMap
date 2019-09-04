@@ -9,12 +9,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.myapp.test.weathermap.MainContract;
-import com.myapp.test.weathermap.MyApplication;
+import com.myapp.test.weathermap.contract.MainContract;
+import com.myapp.test.weathermap.myApplicationApp.MyApplication;
 import com.myapp.test.weathermap.R;
 import com.myapp.test.weathermap.presenter.ListPresenter;
-import com.myapp.test.weathermap.presenter.model.fiveDayWeather.WeatherInfo;
+import com.myapp.test.weathermap.entity.fiveDayWeather.WeatherInfo;
 import com.myapp.test.weathermap.view.adapters.ExampleAdapter;
 
 import java.util.ArrayList;
@@ -64,44 +65,66 @@ public class FiveDayWeatherActivity extends AppCompatActivity implements MainCon
         title.setText(name);
 
         listPresenter = new ListPresenter(this);
-        listPresenter.onActivityCreated(latitude, longitude);
+        listPresenter.onActivityCreated();
 
     }
 
     @Override
     public void showFiveDayWeather(ArrayList<WeatherInfo> day1, ArrayList<WeatherInfo> day2,
                                    ArrayList<WeatherInfo> day3, ArrayList<WeatherInfo> day4,
-                                   ArrayList<WeatherInfo> day5, ArrayList<WeatherInfo> day6) {
+                                   ArrayList<WeatherInfo> day5) {
 
         progressBar.setVisibility(View.INVISIBLE);
 
-
         date1.setText(day1.get(1).getDt_txt().substring(0, 10));
-        recyclerView1.setLayoutManager(new LinearLayoutManager(MyApplication.getAppContext(), 0, false));
-        recyclerView1.setAdapter(new ExampleAdapter(day1));
+        recyclerView1.setLayoutManager(getLayoutManager());
+        recyclerView1.setAdapter(getExampleAdapter(day1));
 
-        date2.setText(day1.get(1).getDt_txt().substring(0, 10));
-        recyclerView2.setLayoutManager(new LinearLayoutManager(MyApplication.getAppContext(), 0, false));
-        recyclerView2.setAdapter(new ExampleAdapter(day2));
+        date2.setText(day2.get(1).getDt_txt().substring(0, 10));
+        recyclerView2.setLayoutManager(getLayoutManager());
+        recyclerView2.setAdapter(getExampleAdapter(day2));
 
-        date3.setText(day1.get(1).getDt_txt().substring(0, 10));
-        recyclerView3.setLayoutManager(new LinearLayoutManager(MyApplication.getAppContext(), 0, false));
-        recyclerView3.setAdapter(new ExampleAdapter(day3));
+        date3.setText(day3.get(1).getDt_txt().substring(0, 10));
+        recyclerView3.setLayoutManager(getLayoutManager());
+        recyclerView3.setAdapter(getExampleAdapter(day3));
 
-        date4.setText(day1.get(1).getDt_txt().substring(0, 10));
-        recyclerView4.setLayoutManager(new LinearLayoutManager(MyApplication.getAppContext(), 0, false));
-        recyclerView4.setAdapter(new ExampleAdapter(day4));
+        date4.setText(day4.get(1).getDt_txt().substring(0, 10));
+        recyclerView4.setLayoutManager(getLayoutManager());
+        recyclerView4.setAdapter(getExampleAdapter(day4));
 
-        date5.setText(day1.get(1).getDt_txt().substring(0, 10));
-        recyclerView5.setLayoutManager(new LinearLayoutManager(MyApplication.getAppContext(), 0, false));
-        recyclerView5.setAdapter(new ExampleAdapter(day5));
+        date5.setText(day5.get(1).getDt_txt().substring(0, 10));
+        recyclerView5.setLayoutManager(getLayoutManager());
+        recyclerView5.setAdapter(getExampleAdapter(day5));
 
-        if(day6 != null){
-            date6.setText(day1.get(1).getDt_txt().substring(0, 10));
-            recyclerView6.setLayoutManager(new LinearLayoutManager(MyApplication.getAppContext(), 0, false));
-            recyclerView6.setAdapter(new ExampleAdapter(day6));
-        }
+    }
 
+    private LinearLayoutManager getLayoutManager(){
+        return new LinearLayoutManager(MyApplication.getAppContext(), 0, false);
+    }
+
+    private ExampleAdapter getExampleAdapter(ArrayList<WeatherInfo> list){
+        return new ExampleAdapter(list);
+    }
+
+
+    @Override
+    public String getLatitude() {
+        return latitude;
+    }
+
+    @Override
+    public String getLongitude() {
+        return longitude;
+    }
+
+    @Override
+    public void showNoConnection() {
+        Toast.makeText(MyApplication.getAppContext(), R.string.no_connection, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void showError(String error) {
+        Toast.makeText(MyApplication.getAppContext(), error, Toast.LENGTH_LONG).show();
     }
 
 }

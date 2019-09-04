@@ -1,11 +1,11 @@
-package com.myapp.test.weathermap;
+package com.myapp.test.weathermap.contract;
 
 
 import android.view.MotionEvent;
 
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
-import com.myapp.test.weathermap.presenter.model.fiveDayWeather.WeatherInfo;
+import com.myapp.test.weathermap.entity.fiveDayWeather.WeatherInfo;
 
 import java.util.ArrayList;
 
@@ -20,33 +20,46 @@ public interface MainContract  {
         void showNoConnectionText();
         void deleteText(android.view.View view, MotionEvent motionEvent);
         void showNoInformation();
-        void startFiveDayWeatherActivity();
-        void showTile();
+        void startFiveDayWeatherActivity(String name, String latitude, String longitude);
+        void showTile(String tileType);
+        void showError(String error);
+        LatLng getLatLng();
+        String getName();
     }
 
     interface MainPresenter {
-        void onMapWasClicked (LatLng latLng);
+        void onMapWasClicked ();
         void onButtonWasClicked();
         void onInfoWindowsWasClicked();
         void onEditorActionWasClicked(LatLng latLng);
         void onEditTextDrawableWasClicked(android.view.View view, MotionEvent motionEvent);
         void onCameraMove();
         void noInformation();
-        void spinerWasSelected();
+        void spinerWasSelected(String tileType);
     }
 
     interface ListWeatherView{
          void showFiveDayWeather(ArrayList<WeatherInfo> day1, ArrayList<WeatherInfo> day2,
                                  ArrayList<WeatherInfo> day3, ArrayList<WeatherInfo> day4,
-                                 ArrayList<WeatherInfo> day5, ArrayList<WeatherInfo> day6);
+                                 ArrayList<WeatherInfo> day5);
+        String getLatitude();
+        String getLongitude();
+        void showNoConnection();
+        void showError(String error);
     }
 
     interface ListPresenter{
-        void onActivityCreated(String latitude, String longitude);
+        void onActivityCreated();
     }
 
     interface Repository {
-        String loadFiveDayWeather(String latitude, String longitude);
-        String loadCurrentWeather(String latitude, String longitude);
+        void loadFiveDayWeather(String latitude, String longitude, OnFinishedListener onFinishedListener);
+        void loadCurrentWeather(String latitude, String longitude, OnFinishedListener onFinishedListener);
+
+        interface OnFinishedListener{
+            void onFinished(String result);
+            void onFailure(String error);
+            void showNoConnection();
+        }
     }
 }

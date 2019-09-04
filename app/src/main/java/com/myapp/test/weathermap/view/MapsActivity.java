@@ -2,7 +2,6 @@ package com.myapp.test.weathermap.view;
 
 import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.support.v4.app.ActivityCompat;
@@ -33,10 +32,12 @@ import com.google.android.gms.maps.model.TileOverlay;
 import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.android.gms.maps.model.TileProvider;
 import com.google.android.gms.maps.model.UrlTileProvider;
-import com.myapp.test.weathermap.MainContract;
-import com.myapp.test.weathermap.MyApplication;
+import com.myapp.test.weathermap.contract.MainContract;
+import com.myapp.test.weathermap.myApplicationApp.MyApplication;
 import com.myapp.test.weathermap.R;
 import com.myapp.test.weathermap.presenter.MainPresenter;
+import com.myapp.test.weathermap.utils.InternetConnection;
+import com.myapp.test.weathermap.utils.SelfPermission;
 
 
 import java.net.MalformedURLException;
@@ -46,7 +47,7 @@ import java.util.Locale;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener,
         GoogleMap.OnMapClickListener, GoogleMap.InfoWindowAdapter, GoogleMap.OnInfoWindowClickListener, MainContract.View,
-        GoogleMap.OnMarkerClickListener {
+        GoogleMap.OnMarkerClickListener, AdapterView.OnItemSelectedListener {
 
     private GoogleMap mMap;
     private Marker marker;
@@ -57,11 +58,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private View view;
     private List<Address> addressList;
     private Geocoder geocoder;
-    public static final String NAME = "name";
     public static final String LATITUDE = "latitude";
     public static final String LONGITUDE = "longitude";
-    private LatLng latLng;
-    private TileOverlay tileOver;
+    public static final String NAME = "name";
+    private LatLng mlatLng;
+    private TileOverlay tileOverlay;
     private Spinner spinner;
     private String tileType = null;
     private Boolean showHideInfoWindow = true;
@@ -81,46 +82,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         weather = view.findViewById(R.id.weather);
 
         spinner = findViewById(R.id.tileType);
-        String[] tileName = new String[]{"Выключено", "Осадки", "Облачность", "Температура", "Ветер", "Давление над ур. моря"};
+        String[] tileName = getResources().getStringArray(R.array.list);
         ArrayAdapter<String> adpt = new ArrayAdapter(MyApplication.getAppContext(), android.R.layout.simple_list_item_activated_1, tileName);
         spinner.setAdapter(adpt);
-
-
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                if (tileOver != null)
-                    tileOver.remove();
-                switch (i) {
-                    case 0:
-                        tileType = null;
-                        break;
-                    case 1:
-                        tileType = "precipitation_new";
-                        break;
-                    case 2:
-                        tileType = "clouds_new";
-                        break;
-                    case 3:
-                        tileType = "temp_new";
-                        break;
-                    case 4:
-                        tileType = "wind_new";
-                        break;
-                    case 5:
-                        tileType = "pressure_new";
-                        break;
-
-                }
-                if (tileType != null) mPresenter.spinerWasSelected();
-
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
+        spinner.setOnItemSelectedListener(this);
 
         locationSearch = findViewById(R.id.location_search);
         locationSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -135,8 +100,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             addressList = geocoder.getFromLocationName(location, 1);
 
                             Address address = addressList.get(0);
-                            LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
-                            mPresenter.onEditorActionWasClicked(latLng);
+                            mPresenter.onEditorActionWasClicked(new LatLng(address.getLatitude(),
+                                    address.getLongitude()));
                         } catch (Exception e) {
                             mPresenter.noInformation();
                         }
@@ -188,7 +153,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         geocoder = new Geocoder(MyApplication.getAppContext(), Locale.getDefault());
 
-        if (ActivityCompat.checkSelfPermission(MyApplication.getAppContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MyApplication.getAppContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (SelfPermission.checkSelfPermission(MyApplication.getAppContext())) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     1);
         }
@@ -203,8 +168,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onMapClick(final LatLng latLng) {
-        this.latLng = latLng;
-        mPresenter.onMapWasClicked(latLng);
+        this.mlatLng = latLng;
+        mPresenter.onMapWasClicked();
     }
 
     @Override
@@ -222,7 +187,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } catch (Exception e) {
             mPresenter.noInformation();
         }
-
     }
 
     @Override
@@ -246,28 +210,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void showNoConnectionText() {
-        Toast.makeText(MyApplication.getAppContext(), "Отсутствует интернет соединение", Toast.LENGTH_LONG).show();
+        Toast.makeText(MyApplication.getAppContext(), R.string.no_connection, Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void showNoInformation() {
         locationSearch.setText("");
-        Toast.makeText(MyApplication.getAppContext(), "Информация не найдена", Toast.LENGTH_LONG).show();
+        Toast.makeText(MyApplication.getAppContext(), R.string.no_information, Toast.LENGTH_LONG).show();
     }
 
     @Override
-    public void startFiveDayWeatherActivity() {
+    public void startFiveDayWeatherActivity(String name, String latitude, String longitude) {
         Intent intent = new Intent(MyApplication.getAppContext(), FiveDayWeatherActivity.class);
-        intent.putExtra(NAME, name.getText().toString());
-        String latitude = String.valueOf(latLng.latitude);
-        String longitude = String.valueOf(latLng.longitude);
+        intent.putExtra(NAME, name);
         intent.putExtra(LATITUDE, latitude);
         intent.putExtra(LONGITUDE, longitude);
         startActivity(intent);
     }
 
     @Override
-    public void showTile() {
+    public void showTile(String tileType) {
         final String WEATHER_MAP_URL_FORMAT = "https://tile.openweathermap.org/map/" + tileType + "/%d/%d/%d.png?appid=db2c05a113d582c380b53504bc58b1fd";
 
         TileProvider tileProvider = new UrlTileProvider(256, 256) {
@@ -284,7 +246,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 return url;
             }
         };
-        tileOver = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(tileProvider));
+        tileOverlay = mMap.addTileOverlay(new TileOverlayOptions().tileProvider(tileProvider));
+    }
+
+    @Override
+    public void showError(String error) {
+        Toast.makeText(MyApplication.getAppContext(), error, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public LatLng getLatLng() {
+        return mlatLng;
+    }
+
+    @Override
+    public String getName() {
+        return name.getText().toString();
     }
 
     @Override
@@ -303,10 +280,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             marker.remove();
         } catch (Exception e) {
         }
+        mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng), 300, null);
+
         marker = mMap.addMarker(new MarkerOptions()
                 .position(latLng));
 
-        mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng), 500, null);
     }
 
     @Override
@@ -337,5 +315,42 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return true;
         }
         return true;
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+        if (InternetConnection.checkConnection(MyApplication.getAppContext())){
+            if (tileOverlay != null)
+                tileOverlay.remove();
+            switch (i) {
+                case 0:
+                    tileType = null;
+                    break;
+                case 1:
+                    tileType = "precipitation_new";
+                    break;
+                case 2:
+                    tileType = "clouds_new";
+                    break;
+                case 3:
+                    tileType = "temp_new";
+                    break;
+                case 4:
+                    tileType = "wind_new";
+                    break;
+                case 5:
+                    tileType = "pressure_new";
+                    break;
+            }
+            if (tileType != null) mPresenter.spinerWasSelected(tileType);
+        }else{
+            spinner.setSelection(0);
+            showNoConnectionText();
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+
     }
 }

@@ -1,6 +1,5 @@
 package com.myapp.test.weathermap.presenter;
 
-import android.os.AsyncTask;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -9,21 +8,18 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.myapp.test.weathermap.MainContract;
-import com.myapp.test.weathermap.MyApplication;
-import com.myapp.test.weathermap.presenter.model.currentWeather.Weather;
-import com.myapp.test.weathermap.presenter.model.currentWeather.WeatherInfo;
+import com.myapp.test.weathermap.contract.MainContract;
+import com.myapp.test.weathermap.myApplicationApp.MyApplication;
+import com.myapp.test.weathermap.entity.currentWeather.Weather;
+import com.myapp.test.weathermap.entity.currentWeather.WeatherInfo;
 import com.myapp.test.weathermap.repository.MainRepository;
 
-import java.io.IOException;
-
-public class MainPresenter implements MainContract.MainPresenter {
+public class MainPresenter implements MainContract.MainPresenter, MainContract.Repository.OnFinishedListener {
 
     private MainContract.View mView;
     private MainRepository mRepository;
 
     private WeatherInfo weatherInfo;
-    private String result;
     private String temp;
     private String wind;
     private String weather;
@@ -36,44 +32,12 @@ public class MainPresenter implements MainContract.MainPresenter {
     }
 
     @Override
-    public void onMapWasClicked(LatLng latLng) {
-        if (isOnline()) {
+    public void onMapWasClicked() {
             mView.hideEditText();
             mView.hideKeyboard();
-            mView.addMarker(latLng);
-            getWeatherInfo(latLng);
-        } else mView.showNoConnectionText();
-    }
-
-    private void getWeatherInfo(final LatLng latLng) {
-        new AsyncTask() {
-            @Override
-            protected Object doInBackground(Object[] objects) {
-                result = mRepository.loadCurrentWeather(String.valueOf(latLng.latitude), String.valueOf(latLng.longitude));
-                return result;
-            }
-
-            @Override
-            protected void onPostExecute(Object o) {
-                super.onPostExecute(o);
-                ShowWeather(String.valueOf(o));
-            }
-        }.execute();
-    }
-
-    private void ShowWeather(String res) {
-        final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        weatherInfo = gson.fromJson(res, WeatherInfo.class);
-
-        if (Integer.parseInt(weatherInfo.getCod()) == 200) {
-            temp = "Температура: " + getCelsius(weatherInfo.getMain().getTemp()) + " °C";
-            wind = "Скорость ветра: " + String.valueOf(weatherInfo.getWind().getSpeed()) + " м/с";
-            weather = getWeather(weatherInfo.getWeather());
-            icon = getImage(weatherInfo.getWeather()[0].getIcon());
-            BitmapDescriptor bitmap = BitmapDescriptorFactory.fromResource(MyApplication.getAppContext().getResources().getIdentifier(icon, "drawable", MyApplication.getAppContext().getPackageName()));
-            mView.showCurrentWeather(temp, wind, weather, bitmap);
-        } else mView.showCurrentWeather("Сервер", "не", "отвечает", null);
-
+            mView.addMarker(mView.getLatLng());
+            mRepository.loadCurrentWeather(String.valueOf(mView.getLatLng().latitude),
+                    String.valueOf(mView.getLatLng().longitude), this);
     }
 
     @Override
@@ -83,16 +47,16 @@ public class MainPresenter implements MainContract.MainPresenter {
 
     @Override
     public void onInfoWindowsWasClicked() {
-        mView.startFiveDayWeatherActivity();
+        mView.startFiveDayWeatherActivity(mView.getName(), String.valueOf(mView.getLatLng().latitude),
+                String.valueOf(mView.getLatLng().longitude));
     }
 
     @Override
     public void onEditorActionWasClicked(LatLng latLng) {
-        mView.hideEditText();
-        if (isOnline()) {
+            mView.hideEditText();
             mView.addMarker(latLng);
-            getWeatherInfo(latLng);
-        } else mView.showNoConnectionText();
+            mRepository.loadCurrentWeather(String.valueOf(mView.getLatLng().latitude),
+                    String.valueOf(mView.getLatLng().longitude), this);
     }
 
     @Override
@@ -112,8 +76,8 @@ public class MainPresenter implements MainContract.MainPresenter {
     }
 
     @Override
-    public void spinerWasSelected() {
-        mView.showTile();
+    public void spinerWasSelected(String tileType) {
+        mView.showTile(tileType);
     }
 
     private String getImage(String image) {
@@ -133,18 +97,27 @@ public class MainPresenter implements MainContract.MainPresenter {
         return wr[0].getDescription();
     }
 
-    protected boolean isOnline() {
-        Runtime runtime = Runtime.getRuntime();
-        try {
-            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
-            int exitValue = ipProcess.waitFor();
-            return (exitValue == 0);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+    @Override
+    public void onFinished(String result) {
+        final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        weatherInfo = gson.fromJson(result, WeatherInfo.class);
+        if (Integer.parseInt(weatherInfo.getCod()) == 200) {
+            temp = "Температура: " + getCelsius(weatherInfo.getMain().getTemp()) + " °C";
+            wind = "Скорость ветра: " + String.valueOf(weatherInfo.getWind().getSpeed()) + " м/с";
+            weather = getWeather(weatherInfo.getWeather());
+            icon = getImage(weatherInfo.getWeather()[0].getIcon());
+            BitmapDescriptor bitmap = BitmapDescriptorFactory.fromResource(MyApplication.getAppContext().getResources().getIdentifier(icon, "drawable", MyApplication.getAppContext().getPackageName()));
+            mView.showCurrentWeather(temp, wind, weather, bitmap);
+        } else mView.showCurrentWeather("Сервер", "не", "отвечает", null);
+    }
 
-        return false;
+    @Override
+    public void onFailure(String error) {
+        mView.showError(error);
+    }
+
+    @Override
+    public void showNoConnection() {
+        mView.showNoConnectionText();
     }
 }

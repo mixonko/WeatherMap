@@ -1,4 +1,4 @@
-package com.myapp.test.weathermap;
+package com.myapp.test.weathermap.myApplicationApp;
 
 import android.app.Application;
 import android.content.Context;

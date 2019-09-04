@@ -1,4 +1,4 @@
-package com.myapp.test.weathermap.presenter.model.fiveDayWeather;
+package com.myapp.test.weathermap.entity.fiveDayWeather;
 
 public class Clouds {
     private double all;

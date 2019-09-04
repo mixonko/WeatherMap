@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="list">
+        <item>Выключено</item>
+        <item>Осадки</item>
+        <item>Облачность</item>
+        <item>Температура</item>
+        <item>Ветер</item>
+        <item>Давление над ур. моря</item>
+    </string-array>
+</resources>

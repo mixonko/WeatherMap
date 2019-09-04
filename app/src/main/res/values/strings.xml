@@ -8,4 +8,6 @@
     <string name="wind">Скорость ветра: </string>
     <string name="time">Время: </string>
     <string name="editTextHint">Введите текст</string>
+    <string name="no_connection">Отсутствует интернет соединение</string>
+    <string name="no_information">Информация не найдена</string>
 </resources>

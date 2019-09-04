@@ -1,4 +1,4 @@
-package com.myapp.test.weathermap.presenter.model.fiveDayWeather;
+package com.myapp.test.weathermap.entity.fiveDayWeather;
 
 public class WeatherInfo {
     private Main main;

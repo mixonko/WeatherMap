@@ -5,11 +5,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.myapp.test.weathermap.R;
-import com.myapp.test.weathermap.presenter.model.fiveDayWeather.WeatherInfo;
+import com.myapp.test.weathermap.entity.fiveDayWeather.WeatherInfo;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -31,7 +30,6 @@ public class ExampleAdapter extends RecyclerView.Adapter<ExampleAdapter.ExampleV
         public TextView clouds;
         public TextView humidity;
         public TextView wind;
-        public Spinner spinner;
 
         public ExampleViewHolder(@NonNull View itemView) {
             super(itemView);
