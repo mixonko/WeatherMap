@@ -36,6 +36,9 @@
                 android:gravity="center"
                 android:orientation="vertical">
 
+                <View
+                    style="@style/Line" />
+
                 <TextView
                     android:id="@+id/date1"
                     style="@style/listTV"/>
@@ -44,6 +47,9 @@
                     android:id="@+id/list1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
+
+                <View
+                    style="@style/Line" />
 
                 <TextView
                     android:id="@+id/date2"
@@ -54,6 +60,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
+                <View
+                    style="@style/Line" />
+
                 <TextView
                     android:id="@+id/date3"
                     style="@style/listTV"/>
@@ -62,6 +71,9 @@
                     android:id="@+id/list3"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
+
+                <View
+                    style="@style/Line" />
 
                 <TextView
                     android:id="@+id/date4"
@@ -72,6 +84,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
+                <View
+                    style="@style/Line" />
+
                 <TextView
                     android:id="@+id/date5"
                     style="@style/listTV"/>
@@ -81,14 +96,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
-                <TextView
-                    android:id="@+id/date6"
-                    style="@style/listTV" />
-
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/list6"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                <View
+                    style="@style/Line" />
 
             </LinearLayout>
 

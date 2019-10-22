@@ -28,8 +28,7 @@ public class FiveDayWeatherActivity extends AppCompatActivity implements MainCon
     private RecyclerView recyclerView3;
     private RecyclerView recyclerView4;
     private RecyclerView recyclerView5;
-    private RecyclerView recyclerView6;
-    private TextView title, date1, date2, date3, date4, date5, date6;
+    private TextView title, date1, date2, date3, date4, date5;
     private MainContract.ListPresenter listPresenter;
     private String latitude;
     private String longitude;
@@ -50,7 +49,6 @@ public class FiveDayWeatherActivity extends AppCompatActivity implements MainCon
         recyclerView3 = findViewById(R.id.list3);
         recyclerView4 = findViewById(R.id.list4);
         recyclerView5 = findViewById(R.id.list5);
-        recyclerView6 = findViewById(R.id.list6);
 
         progressBar = findViewById(R.id.progressBar);
 
@@ -59,7 +57,6 @@ public class FiveDayWeatherActivity extends AppCompatActivity implements MainCon
         date3 = findViewById(R.id.date3);
         date4 = findViewById(R.id.date4);
         date5 = findViewById(R.id.date5);
-        date6 = findViewById(R.id.date6);
 
         title = findViewById(R.id.title);
         title.setText(name);
@@ -76,7 +73,8 @@ public class FiveDayWeatherActivity extends AppCompatActivity implements MainCon
 
         progressBar.setVisibility(View.INVISIBLE);
 
-        date1.setText(day1.get(1).getDt_txt().substring(0, 10));
+        date1.setText(day1.get(0).getDt_txt().substring(0, 10));
+        Toast.makeText(MyApplication.getAppContext(), day1.get(0).getDt_txt(), Toast.LENGTH_LONG).show();
         recyclerView1.setLayoutManager(getLayoutManager());
         recyclerView1.setAdapter(getExampleAdapter(day1));
 
