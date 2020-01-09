@@ -29,6 +29,7 @@ public class FiveDayWeatherActivity extends AppCompatActivity implements MainCon
     private RecyclerView recyclerView4;
     private RecyclerView recyclerView5;
     private TextView title, date1, date2, date3, date4, date5;
+    private View line1, line2, line3, line4, line5, line6;
     private MainContract.ListPresenter listPresenter;
     private String latitude;
     private String longitude;
@@ -58,6 +59,13 @@ public class FiveDayWeatherActivity extends AppCompatActivity implements MainCon
         date4 = findViewById(R.id.date4);
         date5 = findViewById(R.id.date5);
 
+        line1 = findViewById(R.id.line1);
+        line2 = findViewById(R.id.line2);
+        line3 = findViewById(R.id.line3);
+        line4 = findViewById(R.id.line4);
+        line5 = findViewById(R.id.line5);
+        line6 = findViewById(R.id.line6);
+
         title = findViewById(R.id.title);
         title.setText(name);
 
@@ -71,10 +79,8 @@ public class FiveDayWeatherActivity extends AppCompatActivity implements MainCon
                                    ArrayList<WeatherInfo> day3, ArrayList<WeatherInfo> day4,
                                    ArrayList<WeatherInfo> day5) {
 
-        progressBar.setVisibility(View.INVISIBLE);
 
-        date1.setText(day1.get(0).getDt_txt().substring(0, 10));
-        Toast.makeText(MyApplication.getAppContext(), day1.get(0).getDt_txt(), Toast.LENGTH_LONG).show();
+        date1.setText(day1.get(1).getDt_txt().substring(0, 10));
         recyclerView1.setLayoutManager(getLayoutManager());
         recyclerView1.setAdapter(getExampleAdapter(day1));
 
@@ -96,11 +102,26 @@ public class FiveDayWeatherActivity extends AppCompatActivity implements MainCon
 
     }
 
-    private LinearLayoutManager getLayoutManager(){
+    @Override
+    public void hideProgressBar() {
+        progressBar.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void showLines() {
+        line1.setVisibility(View.VISIBLE);
+        line2.setVisibility(View.VISIBLE);
+        line3.setVisibility(View.VISIBLE);
+        line4.setVisibility(View.VISIBLE);
+        line5.setVisibility(View.VISIBLE);
+        line6.setVisibility(View.VISIBLE);
+    }
+
+    private LinearLayoutManager getLayoutManager() {
         return new LinearLayoutManager(MyApplication.getAppContext(), 0, false);
     }
 
-    private ExampleAdapter getExampleAdapter(ArrayList<WeatherInfo> list){
+    private ExampleAdapter getExampleAdapter(ArrayList<WeatherInfo> list) {
         return new ExampleAdapter(list);
     }
 

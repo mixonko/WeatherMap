@@ -37,6 +37,7 @@
                 android:orientation="vertical">
 
                 <View
+                    android:id="@+id/line1"
                     style="@style/Line" />
 
                 <TextView
@@ -49,6 +50,7 @@
                     android:layout_height="wrap_content" />
 
                 <View
+                    android:id="@+id/line2"
                     style="@style/Line" />
 
                 <TextView
@@ -61,6 +63,7 @@
                     android:layout_height="wrap_content" />
 
                 <View
+                    android:id="@+id/line3"
                     style="@style/Line" />
 
                 <TextView
@@ -73,6 +76,7 @@
                     android:layout_height="wrap_content" />
 
                 <View
+                    android:id="@+id/line4"
                     style="@style/Line" />
 
                 <TextView
@@ -85,6 +89,7 @@
                     android:layout_height="wrap_content" />
 
                 <View
+                    android:id="@+id/line5"
                     style="@style/Line" />
 
                 <TextView
@@ -97,6 +102,7 @@
                     android:layout_height="wrap_content" />
 
                 <View
+                    android:id="@+id/line6"
                     style="@style/Line" />
 
             </LinearLayout>

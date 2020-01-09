@@ -42,6 +42,8 @@ public interface MainContract  {
          void showFiveDayWeather(ArrayList<WeatherInfo> day1, ArrayList<WeatherInfo> day2,
                                  ArrayList<WeatherInfo> day3, ArrayList<WeatherInfo> day4,
                                  ArrayList<WeatherInfo> day5);
+         void hideProgressBar();
+         void showLines();
         String getLatitude();
         String getLongitude();
         void showNoConnection();

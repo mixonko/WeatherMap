@@ -97,6 +97,8 @@ public class ListPresenter implements MainContract.ListPresenter, MainContract.R
         if (Integer.parseInt(weatherInfo.getCod()) == 200) {
             weatherInfoArrayList = new ArrayList<>(Arrays.asList(weatherInfo.getList()));
             Object[] days = sortByDay(weatherInfoArrayList);
+            mView.hideProgressBar();
+            mView.showLines();
             mView.showFiveDayWeather((ArrayList<WeatherInfo>)days[0], (ArrayList<WeatherInfo>)days[1],
                     (ArrayList<WeatherInfo>)days[2], (ArrayList<WeatherInfo>)days[3],
                     (ArrayList<WeatherInfo>)days[4]);
